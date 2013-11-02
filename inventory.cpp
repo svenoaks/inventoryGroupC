@@ -13,8 +13,8 @@ double getTotalValue();
 int getTotalItems();
 void sortVecs();
 void readFileIntoVecs();
-bool isItemInStore(string);
-string sellItem(string);
+bool isItemInStore(string, int&);
+void sellItem(int);
 userSelection getSelectionFromUser();
 string getItemFromUser(userSelection);
 void showMenu();
@@ -33,7 +33,7 @@ vector<double> sellingPrices;
 int main()
 {
 	readFileIntoVecs();
-	
+
 	sortVecs();
 
 	while (true)
@@ -42,17 +42,26 @@ int main()
 		string userInput;
 		showMenu();
 		userSelection selection = getSelectionFromUser();
+		int position = -1;
 		switch (selection)
 		{
 		case CHECK:
 			userInput = getItemFromUser(selection);
-			cout << "Item is "  << (isItemInStore(userInput) ? "" : "not ") 
+			cout << "Item is "  << (isItemInStore(userInput, position) ? "" : "not ") 
 				<< "available in the store." << endl;
 			break;
 		case SELL:
 			userInput = getItemFromUser(selection);
-			sellItem(userInput);
-			cout << "1 unit " << userInput << " has been sold." << endl;;
+			
+			if (isItemInStore(userInput, position))
+			{
+				sellItem(position);
+				cout << "1 unit " << userInput << " has been sold." << endl;
+			}
+			else
+			{
+				cout << "Couldn't sell item - " << userInput << " not found in store" << endl;
+			}
 			break;
 		case PRINT:
 			printReport();
@@ -124,13 +133,23 @@ void testVecs()
 }
 
 //isItemIntStore() and sellItem() by Steve Myers
-bool isItemInStore(string userInput)
+bool isItemInStore(string userInput, int& position)
 {
+	for (unsigned i = 0; i < itemNames.size(); i++)
+	{
+		if (itemNames[i] == userInput)
+		{
+			position = i;
+			return pInStores[i] > 0;
+		}
+	}
 	return false;
+
 }
-string sellItem(string userInput)
+void sellItem(int position)
 {
-	return "";
+	++pSolds[position];
+	--pInStores[position];
 }
 
 
@@ -156,7 +175,7 @@ void fileInput(int noOfRows)
 	int item, order; 
 	double manPrice, sellPrice;
 	char ch;
-	
+
 	for (unsigned i=0; i<noOfRows/3; i++)
 
 	{      
