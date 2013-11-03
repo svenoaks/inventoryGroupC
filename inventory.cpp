@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -20,6 +21,7 @@ string getItemFromUser(userSelection);
 void showMenu();
 void fileInput(int);
 int noOfRows();
+string toUpper(string);
 
 vector<int> itemIds;
 vector<string> itemNames;
@@ -52,7 +54,7 @@ int main()
 			break;
 		case SELL:
 			userInput = getItemFromUser(selection);
-			
+
 			if (isItemInStore(userInput, position))
 			{
 				sellItem(position);
@@ -63,11 +65,12 @@ int main()
 				cout << "Couldn't sell item - " << userInput << " not found in store" << endl;
 			}
 			break;
+		case TEST:
+			testVecs();
+			break;
 		case PRINT:
 			printReport();
 			break;
-		case TEST:
-			testVecs();
 		case QUIT:
 		default:
 			wantsToQuit = true;
@@ -132,12 +135,23 @@ void testVecs()
 	}
 }
 
+// toUppder() copied from stackoverflow by user GigaWatt
+//  http://stackoverflow.com/questions/9507895/converting-stdstring-to-upper-case-major-performance-difference
+string toUpper(string str)
+{
+	for (int pos = 0, sz = str.length(); pos < sz; ++pos)
+	{
+		if (str[pos] >= 'a' && str[pos] <= 'z') { str[pos] += ('A' - 'a'); }
+	}
+	return str;
+}
+
 //isItemIntStore() and sellItem() by Steve Myers
 bool isItemInStore(string userInput, int& position)
 {
 	for (unsigned i = 0; i < itemNames.size(); i++)
 	{
-		if (itemNames[i] == userInput)
+		if (toUpper(itemNames[i]) == toUpper(userInput))
 		{
 			position = i;
 			return pInStores[i] > 0;
@@ -214,6 +228,8 @@ void fileInput(int noOfRows)
 //printReport(), getTotalValue() and getTotalItems() by...
 void printReport()
 {
+	cout << left << setw(8) << itemIds[0] 
+	<<  setw(20) << itemNames[0] << setw(12) << pOrdereds[0];
 }
 double getTotalValue()
 {
@@ -232,7 +248,7 @@ void showMenu()
 }
 userSelection getSelectionFromUser()
 {
-	return TEST;
+	return PRINT;
 }
 
 /*
