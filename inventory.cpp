@@ -6,7 +6,7 @@
 
 using namespace std;
 
-enum userSelection { CHECK, SELL, PRINT, TEST, QUIT };
+enum userSelection { CHECK_BY_ID=1, CHECK_BY_NAME, SELL_BY_ID, SELL_BY_NAME, PRINT, QUIT };
 
 void testVecs();
 void printReport();
@@ -14,14 +14,17 @@ double getTotalValue();
 int getTotalItems();
 void sortVecs();
 void readFileIntoVecs();
-bool isItemInStore(string, int&);
+bool isItemInStoreByName(string, int&);
+bool isItemInStoreById(int, int&);
 void sellItem(int);
 userSelection getSelectionFromUser();
-string getItemFromUser(userSelection);
+int getItemIdFromUser(userSelection);
+string getItemNameFromUser(userSelection);
 void showMenu();
 void fileInput(int);
 int noOfRows();
 string toUpper(string);
+void clearInput();
 
 vector<int> itemIds;
 vector<string> itemNames;
@@ -41,32 +44,58 @@ int main()
 	while (true)
 	{
 		bool wantsToQuit = false;
-		string userInput;
+		string userName;
+		int userId;
 		showMenu();
 		userSelection selection = getSelectionFromUser();
 		int position = -1;
 		switch (selection)
 		{
-		case CHECK:
-			userInput = getItemFromUser(selection);
-			cout << "Item is "  << (isItemInStore(userInput, position) ? "" : "not ") 
+		case CHECK_BY_NAME:
+			clearInput();
+			userName = getItemNameFromUser(selection);
+			cout << "                  ";
+			cout << "Item is "  << (isItemInStoreByName(userName, position) ? "" : "not ") 
 				<< "available in the store." << endl;
 			break;
-		case SELL:
-			userInput = getItemFromUser(selection);
+		case CHECK_BY_ID:
+			clearInput();
+			userId = getItemIdFromUser(selection);
+			cout << "                  ";
+			cout << "Item is "  << (isItemInStoreById(userId, position) ? "" : "not ") 
+				<< "available in the store." << endl;
+			break;
+		case SELL_BY_NAME:
+			clearInput();
+			userName = getItemNameFromUser(selection);
 
-			if (isItemInStore(userInput, position))
+			if (isItemInStoreByName(userName, position))
 			{
 				sellItem(position);
-				cout << "1 unit " << userInput << " has been sold." << endl;
+				cout << "                  ";
+				cout << "1 unit " << userName << " has been sold." << endl;
 			}
 			else
 			{
-				cout << "Couldn't sell item - " << userInput << " not found in store" << endl;
+				cout << "                  ";
+				cout << "Couldn't sell item - " << userName << " not found in store" << endl;
 			}
 			break;
-		case TEST:
-			testVecs();
+		case SELL_BY_ID:
+			clearInput();
+			userId = getItemIdFromUser(selection);
+
+			if (isItemInStoreById(userId, position))
+			{
+				sellItem(position);
+				cout << "                  ";
+				cout << "1 unit " << userId << " has been sold." << endl;
+			}
+			else
+			{
+				cout << "                  ";
+				cout << "Couldn't sell item - " << userId << " not found in store" << endl;
+			}
 			break;
 		case PRINT:
 			printReport();
@@ -77,27 +106,52 @@ int main()
 			break;
 		}
 		if (wantsToQuit) break;
+		system("pause");
 	}
-	system("pause");
+
 	return 0;
 }
 
-//getItemFromUser() readFileIntoVecs() and sortVecs() by Steve Myers
+//getItemNameFromUser() getItemIdFromUser() readFileIntoVecs() and sortVecs() by Steve Myers
 
-string getItemFromUser(userSelection selection)
+string getItemNameFromUser(userSelection selection)
 {
+	cout << "                  ";
 	switch (selection)
 	{
-	case CHECK:
+	case CHECK_BY_NAME:
 		cout << "Enter name of item to check inventory: ";
 		break;
-	case SELL:
+	case SELL_BY_NAME:
 		cout <<  "Enter name of item to sell: ";
 		break;
 	}
 
 	string input;
 	getline(cin, input); 
+	return input;
+}
+int getItemIdFromUser(userSelection selection)
+{
+	int input;
+	while (true)
+	{
+		cout << "                  ";
+		switch (selection)
+		{
+		case CHECK_BY_ID:
+			cout << "Enter ID of item to check inventory: ";
+			break;
+		case SELL_BY_ID:
+			cout <<  "Enter ID of item to sell: ";
+			break;
+		}
+		cin >> input;
+		
+		if (cin) break;
+		else clearInput();
+	}
+
 	return input;
 }
 void readFileIntoVecs()
@@ -137,6 +191,7 @@ void testVecs()
 
 // toUppder() copied from stackoverflow by user GigaWatt
 //  http://stackoverflow.com/questions/9507895/converting-stdstring-to-upper-case-major-performance-difference
+
 string toUpper(string str)
 {
 	for (int pos = 0, sz = str.length(); pos < sz; ++pos)
@@ -146,12 +201,12 @@ string toUpper(string str)
 	return str;
 }
 
-//isItemIntStore() and sellItem() by Steve Myers
-bool isItemInStore(string userInput, int& position)
+//isItemIntStoreByName() isItemIntStoreById() and sellItem() by Steve Myers
+bool isItemInStoreByName(string userName, int& position)
 {
 	for (unsigned i = 0; i < itemNames.size(); i++)
 	{
-		if (toUpper(itemNames[i]) == toUpper(userInput))
+		if (toUpper(itemNames[i]) == toUpper(userName))
 		{
 			position = i;
 			return pInStores[i] > 0;
@@ -159,6 +214,18 @@ bool isItemInStore(string userInput, int& position)
 	}
 	return false;
 
+}
+bool isItemInStoreById(int input, int& position)
+{
+	for (unsigned i = 0; i < itemIds.size(); i++)
+	{
+		if (itemIds[i] == input)
+		{
+			position = i;
+			return pInStores[i] > 0;
+		}
+	}
+	return false;
 }
 void sellItem(int position)
 {
@@ -228,8 +295,9 @@ void fileInput(int noOfRows)
 //printReport(), getTotalValue() and getTotalItems() by...
 void printReport()
 {
+	system("CLS");
 	cout << left << setw(8) << itemIds[0] 
-	<<  setw(20) << itemNames[0] << setw(12) << pOrdereds[0];
+	<<  setw(20) << itemNames[0] << setw(12) << pOrdereds[0] << setw(12) << pSolds[0] << setw(12) << pInStores[0];
 }
 double getTotalValue()
 {
@@ -241,55 +309,53 @@ int getTotalItems()
 }
 
 
-//showMenu() and getSelectionFromUser by ....
+//showMenu() by Jaime Woodbury
 void showMenu()
 {
-
+	system("CLS");
+	cout<<endl<<endl<<endl<<endl
+		<<"                                    MAIN MENU"<<endl
+		<<"                  **********************************************"<<endl
+		<<"                  *                                            *"<<endl
+		<<"                  *       1 - Check Inventory by ID.           *"<<endl
+		<<"                  *                                            *"<<endl
+		<<"                  *       2 - Check Inventory by Name.         *"<<endl
+		<<"                  *                                            *"<<endl
+		<<"                  *       3 - Sell an Item By ID.              *"<<endl
+		<<"                  *                                            *"<<endl
+		<<"                  *       4 - Sell an Item By Name.            *"<<endl
+		<<"                  *                                            *"<<endl
+		<<"                  *       5 - Print Report                     *"<<endl
+		<<"                  *                                            *"<<endl
+		<<"                  *       6 - Quit Program.                    *"<<endl
+		<<"                  *                                            *"<<endl
+		<<"                  **********************************************"<<endl
+		<<endl;
 }
+
+//getSelectionFromUser() by Steve Myers
 userSelection getSelectionFromUser()
 {
-	return PRINT;
-}
+	//nice static type system here.
 
-/*
-bool readFileIntoVecs()
+	int s = false;
+	while (!s)
+	{
+		cout <<"                  Enter the Number of Your Selection: ";
+		cin >> s;
+		if (s == CHECK_BY_ID || s == CHECK_BY_NAME || s == SELL_BY_ID 
+			|| s == SELL_BY_NAME || s == PRINT || s == QUIT)
+		{
+			return static_cast<userSelection> (s);
+		}
+		s = false;
+		clearInput();
+	}
+}
+//clearInput() by Steve Myers
+void clearInput()
 {
-ifstream inFile;
-
-//place intial.txt in the project folder
-inFile.open("initial.txt");
-
-if (!inFile)
-{
-cout << "Invalid input.";
-inFile.close();
-return false;
+	cin.clear();
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-while (inFile)
-{
-int itemId;
-string itemName;
-int pOrdered;
-double manufPrice, sellingPrice;
-
-inFile >> itemId;
-inFile.ignore(numeric_limits<streamsize>::max(), '\n');
-getline(inFile, itemName);
-inFile >> pOrdered >> manufPrice >> sellingPrice;
-inFile.ignore(numeric_limits<streamsize>::max(), '\n');
-
-itemIds.push_back(itemId);
-itemNames.push_back(itemName);
-pOrdereds.push_back(pOrdered);
-pInStores.push_back(pOrdered);
-pSolds.push_back(0);
-manufPrices.push_back(manufPrice);
-sellingPrices.push_back(sellingPrice);
-
-}
-
-inFile.close();
-return true;
-}
-*/
