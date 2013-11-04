@@ -307,9 +307,11 @@ void printReport(double getTotalValue, int getTotalItems)
 //getTotalValue() by Jaime Woodbury
 double getTotalValue()
 {
-    double totalValue;
+	//initialize variable - SM
+    double totalValue = 0;
     for(int a=0; a<itemIds.size(); a++)
-    totalValue=totalValue+sellingPrices[a];
+	//edit to multiply by pInStores[a] - SM
+    totalValue += sellingPrices[a] * pInStores[a];
         
     return totalValue;
 }
@@ -318,7 +320,8 @@ double getTotalValue()
 //getTotalItems by Jaime Woodbury
 int getTotalItems()
 {
-    int totalItems;
+	//initialize variable - SM
+    int totalItems = 0;
     for(int a=0; a<itemIds.size(); a++)
     totalItems=totalItems+pInStores[a];
     
