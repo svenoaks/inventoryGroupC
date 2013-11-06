@@ -297,11 +297,27 @@ void fileInput(int noOfRows)
 //printReport(), getTotalValue() and getTotalItems() by...
 void printReport(double getTotalValue, int getTotalItems)
 {
-        system("CLS");
-        cout << left << setw(8) << itemIds.at(0)
-        << setw(20) << itemNames.at(0) << setw(12) << pOrdereds.at(0) << setw(12)<< pInStores.at(0) << setw(12)  << pSolds.at(0)
-        << setw(12) <<manufPrices.at(0)<< setw(12) << sellingPrices.at(0)<<endl
-        <<setw(10) <<getTotalValue << setw(10) << getTotalItems;
+             system("CLS");
+        //sets output to a decimal format and to two decimal places and to show it in the output
+        cout << fixed << showpoint << setprecision(2);
+        
+        //column headers
+        cout << setw(50) << "Group C's Hardware Store" << endl << endl;
+        cout << "IemID" << setw(10) << "ItemName" << setw(15) << "pOrdered" << setw(10) << "pInstore" << setw(7)
+             << "pSold" << setw(12) << "manufPrice" << setw(14) << "sellingPrice" << endl;
+        
+        //displays for each record and totals for store
+        for (int i=0;i<itemIds.size(); i++)
+        {
+            cout << left << setw(7) << itemIds.at(i)
+            << setw(21) << itemNames.at(i) << setw(10) << pOrdereds.at(i) << setw(7)<< pInStores.at(i) << right << setw(2)
+            << pSolds.at(i) << setw(12) <<manufPrices.at(i)<< setw(14) << sellingPrices.at(i) <<endl;
+            
+        }
+        
+        cout << endl;
+        cout << "Total Inventory: $" << getTotalValue << endl;
+        cout << "Toal number of items in the store: " << getTotalItems << endl <<endl;
 }
 //gets total selling price of all the items in store
 //getTotalValue() by Jaime Woodbury
